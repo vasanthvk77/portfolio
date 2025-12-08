@@ -770,8 +770,9 @@ const portfolioData = {
 
 const pdfDownload=()=>{
   const link = document.createElement('a');
-  link.href='/files/Resume.pdf';
-  link.download='Resume.pdf';
+  link.href='/portfolio/files/VASANTHAKUMAR_B.pdf';
+  link.download='VASANTHAKUMAR_B.pdf';
+  link.style.display = 'none';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
