@@ -768,14 +768,41 @@ const portfolioData = {
 
 // --- Reusable Components & Hooks ---
 
-const pdfDownload=()=>{
-  const link = document.createElement('a');
-  link.href='/portfolio/files/VASANTHAKUMAR_B.pdf';
-  link.download='VASANTHAKUMAR_B.pdf';
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+const pdfDownload= async ()=>{
+  try {
+    // Use the correct path based on environment
+    const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
+    const filePath = `${basePath}/files/VASANTHAKUMAR_B.pdf`;
+    
+    const response = await fetch(filePath);
+    if (!response.ok) throw new Error('File not found');
+    
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'VASANTHAKUMAR_B.pdf';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up after a short delay
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    }, 100);
+  } catch (error) {
+    console.error('Download failed:', error);
+    // Fallback: try direct download
+    const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
+    const link = document.createElement('a');
+    link.href = `${basePath}/files/VASANTHAKUMAR_B.pdf`;
+    link.download = 'VASANTHAKUMAR_B.pdf';
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }
 
 const CodeRain = () => {
@@ -795,13 +822,14 @@ const CodeRain = () => {
         const setupRain = () => {
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
-            columns = Math.floor(canvas.width / fontSize);
+            // Reduce columns for better performance (every 2nd column)
+            columns = Math.floor(canvas.width / (fontSize * 2));
             drops = [];
             for (let i = 0; i < columns; i++) {
                 drops[i] = {
                     y: Math.random() * canvas.height,
                     text: words[Math.floor(Math.random() * words.length)],
-                    speed: Math.random() * 3+ 1,
+                    speed: Math.random() * 2 + 1, // Slower speed
                     rotation: 0,
                 };
             }
@@ -810,7 +838,7 @@ const CodeRain = () => {
         setupRain();
 
         const draw = () => {
-            ctx.fillStyle = 'rgba(13, 71, 161, 0.15)'; // Increased opacity to make trails fade faster
+            ctx.fillStyle = 'rgba(13, 71, 161, 0.2)'; // Slightly more opaque for better fade
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             ctx.fillStyle = '#90caf9';
@@ -821,18 +849,19 @@ const CodeRain = () => {
                 const text = drop.text;
                 
                 ctx.save();
-                ctx.translate(i * fontSize, drop.y);
-                ctx.rotate(drop.rotation);
+                ctx.translate(i * fontSize * 2, drop.y); // Adjusted for reduced columns
+                // Reduce rotation for better performance
+                ctx.rotate(drop.rotation * 0.5);
                 ctx.fillText(text, 0, 0);
                 ctx.restore();
 
                 drop.y += drop.speed;
-                drop.rotation += 0.02;
+                drop.rotation += 0.01; // Slower rotation
 
-                if (drop.y > canvas.height && Math.random() > 0.95) {
+                if (drop.y > canvas.height && Math.random() > 0.97) {
                     drops[i].y = 0;
                     drops[i].text = words[Math.floor(Math.random() * words.length)];
-                    drops[i].speed = Math.random() * 3 + 1;
+                    drops[i].speed = Math.random() * 2 + 1; // Slightly slower
                     drops[i].rotation = 0;
                 }
             }
