@@ -8,7 +8,7 @@ import Home from './home.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/portfolio">
       <Routes>
         <Route path="/" element={<Home />} />
       </Routes>
