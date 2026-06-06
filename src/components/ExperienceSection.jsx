@@ -181,12 +181,14 @@ export default function ExperienceSection({ experience }) {
       }}>
         {/* Left Side: Sticky 3D Model Sphere */}
         <Box sx={{
-          width: { xs: 240, md: 360 },
-          height: { xs: 240, md: 360 },
-          flexShrink: 0,
+          width: { xs: '100%', md: 360 },
+          maxWidth: { xs: 280, md: 360 },
+          height: { xs: 280, md: 360 },
+          flexShrink: { xs: 1, md: 0 },
           position: { xs: 'relative', md: 'sticky' },
-          top: { xs: '20px', md: 'calc(50vh - 180px)' }, // Centered sticking on desktop
+          top: { xs: '20px', md: 'calc(50vh - 180px)' },
           zIndex: 2,
+          mx: { xs: 'auto', md: 0 },
         }}>
           {/* Glowing background halo */}
           <Box sx={{

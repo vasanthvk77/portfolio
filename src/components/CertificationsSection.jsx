@@ -1,9 +1,8 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, useTheme, useMediaQuery } from '@mui/material';
-import { Plus } from 'lucide-react';
+import { useInView } from '../hooks/useInView';
 import { FaCertificate, FaLaptopCode, FaCode, FaAward } from 'react-icons/fa';
 import ThreeSphere from './ThreeSphere';
-import { useInView } from '../hooks/useInView';
 
 function SectionLabel({ text }) {
   const len = text.length;
@@ -29,10 +28,10 @@ function SectionLabel({ text }) {
 
 // Map certifications to beautiful theme icons
 const ICON_MAP = {
-  0: { icon: <FaCode />, color: '#06b6d4', bg: 'rgba(6,182,212,0.1)', border: 'rgba(6,182,212,0.2)' },
-  1: { icon: <FaLaptopCode />, color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', border: 'rgba(139,92,246,0.2)' },
-  2: { icon: <FaCertificate />, color: '#ec4899', bg: 'rgba(236,72,153,0.1)', border: 'rgba(236,72,153,0.2)' },
-  3: { icon: <FaAward />, color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.2)' },
+  0: { icon: <FaCode />, color: '#06b6d4' },
+  1: { icon: <FaLaptopCode />, color: '#8b5cf6' },
+  2: { icon: <FaCertificate />, color: '#ec4899' },
+  3: { icon: <FaAward />, color: '#f59e0b' },
 };
 
 export default function CertificationsSection({ certifications }) {
@@ -45,12 +44,7 @@ export default function CertificationsSection({ certifications }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (!runwayRef.current || !trackRef.current) return;
-
-      if (isMobile) {
-        trackRef.current.style.transform = 'none';
-        return;
-      }
+      if (!runwayRef.current || !trackRef.current || isMobile) return;
 
       const runwayRect = runwayRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
@@ -70,9 +64,16 @@ export default function CertificationsSection({ certifications }) {
       trackRef.current.style.transform = `translateX(${xOffset}px)`;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
-    handleScroll();
+    if (!isMobile) {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('resize', handleScroll);
+      handleScroll();
+    } else {
+      if (trackRef.current) {
+        trackRef.current.style.transform = 'none';
+      }
+    }
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
@@ -86,18 +87,20 @@ export default function CertificationsSection({ certifications }) {
       sx={{
         position: 'relative',
         height: { xs: 'auto', md: '160vh' },
-        py: 4,
+        py: { xs: 8, md: 4 },
+        px: { xs: 2, md: 4 },
+        maxWidth: '1200px',
+        mx: 'auto',
       }}
     >
-      {/* Sticky container on desktop */}
+      {/* Container wrapper: behaves normally on mobile, sticky on desktop */}
       <Box sx={{
         position: { xs: 'relative', md: 'sticky' },
-        top: '15vh',
+        top: { xs: 0, md: '15vh' },
         height: { xs: 'auto', md: '70vh' },
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        overflow: 'hidden',
       }}>
         {/* Title */}
         <Box
@@ -106,10 +109,6 @@ export default function CertificationsSection({ certifications }) {
             opacity: headerVisible ? 1 : 0,
             transform: headerVisible ? 'translateY(0)' : 'translateY(20px)',
             transition: 'opacity 0.6s ease, transform 0.6s ease',
-            width: '100%',
-            maxWidth: '1200px',
-            mx: 'auto',
-            px: { xs: 2, md: 4 },
             mb: 4,
           }}
         >
@@ -118,38 +117,30 @@ export default function CertificationsSection({ certifications }) {
 
         {/* Content Area */}
         <Box sx={{
-          width: '100%',
-          maxWidth: '1200px',
-          mx: 'auto',
-          px: { xs: 2, md: 4 },
           display: 'flex',
           flexDirection: { xs: 'column-reverse', md: 'row' },
           alignItems: 'center',
-          gap: 3.5,
+          gap: { xs: 5, md: 3.5 },
+          width: '100%',
         }}>
-          
-          {/* Left Side: Cards Viewport */}
+          {/* Cards Container: normal vertical stack/grid on mobile, slide viewport on desktop */}
           <Box sx={{
-            width: { xs: '100%', md: '880px' },
-            overflow: { xs: 'auto', md: 'hidden' },
+            width: { xs: '100%', md: 'calc(100% - 320px)' },
+            overflow: { xs: 'visible', md: 'hidden' },
             flexShrink: 0,
             py: 2,
-            // Hide scrollbar on mobile
-            '&::-webkit-scrollbar': { display: 'none' },
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none',
-            // Fade out left and right edges smoothly (gives "dissolving into sphere" effect)
-            maskImage: 'linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 80px), transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 80px), transparent 100%)',
+            maskImage: { xs: 'none', md: 'linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 80px), transparent 100%)' },
+            WebkitMaskImage: { xs: 'none', md: 'linear-gradient(to right, transparent, #000 30px, #000 calc(100% - 80px), transparent 100%)' },
           }}>
             <Box
               ref={trackRef}
               sx={{
                 display: 'flex',
-                flexDirection: 'row',
+                flexDirection: { xs: 'column', sm: 'row', md: 'row' },
+                flexWrap: { xs: 'nowrap', sm: 'wrap', md: 'nowrap' },
+                justifyContent: 'center',
                 gap: 2.5,
-                width: 'max-content',
-                // Direct DOM updates will manage transform
+                width: { xs: '100%', md: 'max-content' },
               }}
             >
               {certifications.map((cert, idx) => {
@@ -158,7 +149,7 @@ export default function CertificationsSection({ certifications }) {
                   <Card
                     key={idx}
                     sx={{
-                      width: { xs: 260, md: 280 },
+                      width: { xs: '100%', sm: 'calc(50% - 12px)', md: 280 },
                       height: 190,
                       flexShrink: 0,
                       background: 'rgba(255, 255, 255, 0.03)',
@@ -209,10 +200,12 @@ export default function CertificationsSection({ certifications }) {
 
           {/* Right Side: Stationary 3D Model Sphere */}
           <Box sx={{
-            width: { xs: 240, md: 300 },
-            height: { xs: 240, md: 300 },
+            width: { xs: '100%', md: 280 },
+            maxWidth: { xs: 240, md: 280 },
+            height: { xs: 280, md: 280 },
             flexShrink: 0,
             position: 'relative',
+            mx: { xs: 'auto', md: 0 },
           }}>
             {/* Glowing background halo */}
             <Box sx={{
@@ -225,9 +218,9 @@ export default function CertificationsSection({ certifications }) {
             }} />
             <ThreeSphere />
           </Box>
-
         </Box>
       </Box>
     </Box>
   );
 }
+

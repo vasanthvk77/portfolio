@@ -243,7 +243,8 @@ export default function SkillsSection({ skills }) {
                   sx={{
                     width: '100%',
                     maxWidth: 460,
-                    height: 340,
+                    height: { xs: 'auto', md: 340 },
+                    minHeight: { xs: 200 },
                     background: 'rgba(255, 255, 255, 0.02)',
                     backdropFilter: 'blur(12px)',
                     border: '1px solid rgba(255,255,255,0.06)',

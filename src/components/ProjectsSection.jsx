@@ -35,7 +35,7 @@ function ProjectCard({ project, cardWidth, onCardClick }) {
       onClick={onCardClick}
       sx={{
         width: cardWidth,
-        height: 350,
+        height: { xs: 300, md: 350 },
         flexShrink: 0,
         background: 'rgba(255, 255, 255, 0.02)',
         border: '1px solid rgba(255,255,255,0.06)',
@@ -152,7 +152,7 @@ export default function ProjectsSection({ projects }) {
           disabled={currentIndex === 0}
           sx={{
             position: 'absolute',
-            left: { xs: -8, md: -24 },
+            left: { xs: 0, md: -24 },
             zIndex: 10,
             background: 'rgba(15, 15, 26, 0.8)',
             border: '1px solid rgba(255,255,255,0.06)',
@@ -166,7 +166,7 @@ export default function ProjectsSection({ projects }) {
         </IconButton>
 
         {/* Viewport container */}
-        <Box sx={{ width: '100%', overflow: 'hidden', py: 1 }}>
+        <Box sx={{ width: '100%', overflow: 'hidden', py: 1, px: { xs: '40px', md: 0 } }}>
           <Box
             sx={{
               display: 'flex',
@@ -196,7 +196,7 @@ export default function ProjectsSection({ projects }) {
           disabled={currentIndex === maxIndex}
           sx={{
             position: 'absolute',
-            right: { xs: -8, md: -24 },
+            right: { xs: 0, md: -24 },
             zIndex: 10,
             background: 'rgba(15, 15, 26, 0.8)',
             border: '1px solid rgba(255,255,255,0.06)',
