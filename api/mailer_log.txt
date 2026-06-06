@@ -1,0 +1,13 @@
+[2026-06-06 12:07:41] Error: Mail failed to send. Error: Authentication failed
+[2026-06-06 12:10:12] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:13:06] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:19:34] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:19:34] Success: Auto-ACK sent to vallivasanth1980@gmail.com
+[2026-06-06 12:39:12] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:39:12] Success: Auto-ACK sent to vallivasanth1980@gmail.com
+[2026-06-06 12:40:48] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:40:48] Success: Auto-ACK sent to vallivasanth1980@gmail.com
+[2026-06-06 12:47:21] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:47:21] Success: Auto-ACK sent to vallivasanth1980@gmail.com
+[2026-06-06 12:58:01] Success: Mail sent successfully to vasanthakumar4059@gmail.com
+[2026-06-06 12:58:01] Success: Auto-ACK sent to vallivasanth1980@gmail.com

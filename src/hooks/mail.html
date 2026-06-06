@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Received — Vasantha Kumar B</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+
+  body{
+    background:#F5F0E8;
+    font-family:'Outfit',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .shell{
+    max-width:640px;
+    margin:0 auto;
+    padding:32px 16px 48px;
+  }
+
+  /* ── CARD ── */
+  .card{
+    background:#0E0D0B;
+    border-radius:4px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* top ticker tape */
+  .ticker{
+    background:#C8F135;
+    overflow:hidden;
+    white-space:nowrap;
+    padding:10px 0;
+  }
+  .ticker-inner{
+    display:inline-block;
+    animation:scroll 18s linear infinite;
+    font-family:'DM Mono',monospace;
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:.08em;
+    color:#0E0D0B;
+    text-transform:uppercase;
+  }
+  @keyframes scroll{
+    0%{transform:translateX(0)}
+    100%{transform:translateX(-50%)}
+  }
+
+  /* ── HERO ── */
+  .hero{
+    padding:48px 48px 0;
+    position:relative;
+  }
+
+  .issue-line{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:32px;
+  }
+  .issue-dot{
+    width:8px;height:8px;
+    border-radius:50%;
+    background:#C8F135;
+    flex-shrink:0;
+  }
+  .issue-text{
+    font-family:'DM Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    color:#7A7567;
+    text-transform:uppercase;
+  }
+
+  .big-word{
+    font-family:'DM Serif Display',serif;
+    font-size:clamp(64px,13vw,96px);
+    line-height:.92;
+    color:#F5F0E8;
+    letter-spacing:-.02em;
+  }
+  .big-word em{
+    font-style:italic;
+    color:#C8F135;
+  }
+
+  /* HORIZONTAL RULE */
+  .rule{
+    height:1px;
+    background:#2A2822;
+    margin:40px 48px;
+  }
+
+  /* ── BODY ── */
+  .body-area{
+    padding:0 48px;
+  }
+
+  .to-line{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:36px;
+  }
+  .to-label{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    color:#4A4740;
+    text-transform:uppercase;
+  }
+  .to-name{
+    font-size:15px;
+    font-weight:600;
+    color:#F5F0E8;
+    background:#1E1D19;
+    padding:6px 14px;
+    border-radius:2px;
+    border:1px solid #2E2D28;
+  }
+
+  .message-text{
+    font-size:17px;
+    font-weight:300;
+    line-height:1.9;
+    color:#A8A197;
+  }
+  .message-text strong{
+    color:#F5F0E8;
+    font-weight:600;
+  }
+  .message-text p + p{
+    margin-top:20px;
+  }
+
+  /* pull quote */
+  .pull-quote{
+    margin:40px 0;
+    padding:28px 32px;
+    border-left:3px solid #C8F135;
+    background:#141310;
+  }
+  .pull-quote p{
+    font-family:'DM Serif Display',serif;
+    font-style:italic;
+    font-size:22px;
+    line-height:1.5;
+    color:#F5F0E8;
+  }
+
+  /* ── DIVIDER ── */
+  .section-label{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin:40px 48px 32px;
+  }
+  .section-label span{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    color:#4A4740;
+    text-transform:uppercase;
+    flex-shrink:0;
+  }
+  .section-label::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:#2A2822;
+  }
+
+  /* ── SIGNATURE BLOCK ── */
+  .sig-area{
+    padding:0 48px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    align-items:end;
+    gap:24px;
+  }
+
+  .sig-name{
+    font-family:'DM Serif Display',serif;
+    font-size:38px;
+    line-height:1;
+    color:#F5F0E8;
+    letter-spacing:-.01em;
+  }
+  .sig-role{
+    font-size:13px;
+    font-weight:400;
+    color:#7A7567;
+    margin-top:8px;
+    letter-spacing:.04em;
+  }
+
+  .stack-badge{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    align-items:flex-end;
+  }
+  .badge{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.08em;
+    color:#C8F135;
+    background:#1A1E0F;
+    border:1px solid #2D3A12;
+    padding:4px 10px;
+    border-radius:2px;
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+
+  /* ── LINKS STRIP ── */
+  .links-strip{
+    margin:36px 48px 0;
+    padding:20px 24px;
+    background:#141310;
+    border:1px solid #1E1D19;
+    border-radius:2px;
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .links-strip a{
+    font-family:'DM Mono',monospace;
+    font-size:12px;
+    letter-spacing:.1em;
+    color:#7A7567;
+    text-decoration:none;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:color .2s;
+  }
+  .links-strip a:hover{color:#C8F135}
+  .links-strip a::before{
+    content:'↗';
+    font-size:11px;
+  }
+
+  /* ── FOOTER ── */
+  .footer{
+    margin:32px 48px 48px;
+    padding-top:24px;
+    border-top:1px solid #1E1D19;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .footer-note{
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.1em;
+    color:#3A3830;
+    text-transform:uppercase;
+  }
+  .footer-stamp{
+    font-family:'DM Serif Display',serif;
+    font-size:13px;
+    color:#2A2822;
+    letter-spacing:.04em;
+  }
+
+  /* ── OUTER CAPTION ── */
+  .outer-note{
+    text-align:center;
+    margin-top:20px;
+    font-family:'DM Mono',monospace;
+    font-size:10px;
+    letter-spacing:.12em;
+    color:#B8AD9A;
+    text-transform:uppercase;
+  }
+
+  @media(max-width:540px){
+    .hero{padding:32px 28px 0}
+    .rule{margin:32px 28px}
+    .body-area{padding:0 28px}
+    .section-label{margin:32px 28px 24px}
+    .sig-area{padding:0 28px; grid-template-columns:1fr; gap:16px}
+    .stack-badge{align-items:flex-start; flex-direction:row; flex-wrap:wrap}
+    .links-strip{margin:28px 28px 0}
+    .footer{margin:24px 28px 36px}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="card">
+
+    <!-- ticker tape -->
+    <div class="ticker">
+      <span class="ticker-inner">
+        Message received &nbsp;·&nbsp; Reply incoming &nbsp;·&nbsp; Great ideas start with a message &nbsp;·&nbsp; Vasantha Kumar B &nbsp;·&nbsp; Full Stack Developer &nbsp;·&nbsp; React · Flutter · FastAPI · Django · MongoDB &nbsp;·&nbsp; Message received &nbsp;·&nbsp; Reply incoming &nbsp;·&nbsp; Great ideas start with a message &nbsp;·&nbsp; Vasantha Kumar B &nbsp;·&nbsp; Full Stack Developer &nbsp;·&nbsp; React · Flutter · FastAPI · Django · MongoDB &nbsp;·&nbsp;
+      </span>
+    </div>
+
+    <!-- hero -->
+    <div class="hero">
+      <div class="issue-line">
+        <div class="issue-dot"></div>
+        <span class="issue-text">Acknowledgement &nbsp;·&nbsp; Auto-dispatch</span>
+      </div>
+
+      <div class="big-word">
+        Got<br>
+        your<br>
+        <em>note.</em>
+      </div>
+    </div>
+
+    <div class="rule"></div>
+
+    <!-- body -->
+    <div class="body-area">
+
+      <div class="to-line">
+        <span class="to-label">To</span>
+        <span class="to-name">{{CustomerName}}</span>
+      </div>
+
+      <div class="message-text">
+        <p>
+          Thanks for reaching out — it means a lot that you took a moment to connect.
+          Your message has landed safely and I've read every word.
+        </p>
+        <p>
+          Whether you're here to discuss a <strong>project, a collaboration,
+          or a new opportunity</strong>, I'm genuinely glad you started the conversation.
+        </p>
+      </div>
+
+      <div class="pull-quote">
+        <p>"The best projects begin before the first line of code — they begin with a great conversation."</p>
+      </div>
+
+      <div class="message-text">
+        <p>
+          I'll get back to you as soon as possible with a proper, thoughtful reply.
+          Until then — keep building things worth building.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- section separator -->
+    <div class="section-label">
+      <span>Sender</span>
+    </div>
+
+    <!-- signature -->
+    <div class="sig-area">
+      <div>
+        <div class="sig-name">Vasantha<br>Kumar B</div>
+        <div class="sig-role">Full Stack Developer — Chennai, IN</div>
+      </div>
+      <div class="stack-badge">
+        <span class="badge">React</span>
+        <span class="badge">Flutter</span>
+        <span class="badge">FastAPI</span>
+        <span class="badge">Django</span>
+        <span class="badge">MongoDB</span>
+      </div>
+    </div>
+
+    <!-- links -->
+    <div class="links-strip">
+      <a href="https://github.com/yourusername">GitHub</a>
+      <a href="https://linkedin.com/in/yourprofile">LinkedIn</a>
+      <a href="https://yourportfolio.com">Portfolio</a>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+      <span class="footer-note">This is an automated acknowledgement</span>
+      <span class="footer-stamp">VasanthaKumar.dev</span>
+    </div>
+
+  </div>
+
+  <div class="outer-note">Sent via Portfolio Contact Form</div>
+</div>
+
+</body>
+</html>
