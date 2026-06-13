@@ -7,7 +7,7 @@ import ThreeSphere from './ThreeSphere';
 const pdfDownload = async () => {
   try {
     const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
-    const filePath = `${basePath}/files/Vasanthakumar_CV.pdf?v=2`;
+    const filePath = `/files/Vasanthakumar_CV.pdf?v=2`;
     const response = await fetch(filePath);
     if (!response.ok) throw new Error('not found');
     const blob = await response.blob();
@@ -18,7 +18,7 @@ const pdfDownload = async () => {
   } catch {
     const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
     const a = document.createElement('a');
-    a.href = `${basePath}/files/Vasanthakumar_CV.pdf?v=2`;
+    a.href = `/files/Vasanthakumar_CV.pdf?v=2`;
     a.download = 'Vasanthakumar_CV.pdf';
     a.target = '_blank';
     document.body.appendChild(a);
