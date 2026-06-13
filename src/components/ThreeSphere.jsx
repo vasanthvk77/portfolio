@@ -176,9 +176,9 @@ const fragmentShader = `
 `;
 
 const WORDS = [
-  'GIT', 'AWS', 'CSS', 'JS', 'API', 'SQL',
-  'JWT', 'XML', 'MUI', 'UI', 'UX', 'NPM',
-  'DOM', 'DEV', 'APP', 'WEB'
+  'GIT','API', 'SQL',
+  'JWT', 'XML', 'MUI','APP', 'WEB','APK','IOS','LLM','RDLC','ETL',
+  'CORS','REST'
 ];
 
 const COLORS = [

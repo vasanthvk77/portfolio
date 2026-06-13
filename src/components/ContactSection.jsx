@@ -56,7 +56,7 @@ export default function ContactSection({ personalInfo }) {
   const contactItems = [
     { icon: <Mail size={18} />, label: personalInfo.email, href: `mailto:${personalInfo.email}` },
     { icon: <Phone size={18} />, label: `+91 ${personalInfo.phone}`, href: `tel:+91${personalInfo.phone}` },
-    { icon: <MapPin size={18} />, label: 'Coimbatore, Tamil Nadu', href: null },
+    { icon: <MapPin size={18} />, label: 'Tiruppur, Tamil Nadu', href: null },
   ];
 
   const handleNameChange = (e) => {
@@ -159,7 +159,7 @@ export default function ContactSection({ personalInfo }) {
         <SectionLabel text="Get In Touch" />
       </Box>
 
-      <Grid container spacing={6} alignItems="flex-start">
+      <Grid container spacing={{ xs: 2, md: 6 }} alignItems="flex-start">
         {/* Left — contact info */}
         <Grid size={{ xs: 12, md: 5 }}>
           <Box
@@ -170,8 +170,9 @@ export default function ContactSection({ personalInfo }) {
               transition: 'opacity 0.7s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, mb: 4, fontSize: '0.95rem' }}>
-              I'm currently looking for new opportunities. Whether you have a question or just want to connect — feel free to reach out!
+            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, mb: 4, fontSize: '0.95rem',textAlign:'justify' }}>
+              I'm available for freelance projects, technical consultations, and collaborations. Whether you need a web application, mobile app, backend solution, or simply want to connect, feel free to get in touch.
+
             </Typography>
 
             <Stack spacing={2.5}>

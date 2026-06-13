@@ -6,7 +6,8 @@ export const portfolioData = {
     phone: '9514203043',
     linkedin: 'https://linkedin.com/in/vasantha-kumar-b',
     github: 'https://github.com/vasanthvk77',
-    profileSummary: `Python Developer with hands-on experience in building backend systems, automation workflows, and data-driven applications using Python, FastAPI, Flask, SQL, and MongoDB. Currently working as a Trainee Python Developer at Cygnus Software with exposure to AI-powered automation, ETL workflows, and backend API development. Strong understanding database operations, and system integration.`,
+    profileSummary: `Fullstack Developer with experience building end-to-end digital products — scalable backends, RESTful APIs, responsive web apps, and cross-platform mobile applications. Currently working at Prodesx Info Tech, previously at Cygnus Software, delivering real-world solutions across AI automation, ETL workflows, and system integration.
+My stack includes Python, FastAPI, Flask, and .NET on the backend, React for web, Flutter for mobile, and SQL & MongoDB for data — with a consistent focus on clean, production-ready code across the full lifecycle.`,
   },
   skills: {
     'Programming & Backend': ['Python', 'Flask', 'FastAPI', '.NET', 'MySQL', 'PostgreSQL', 'SQL Server', 'MongoDB'],
@@ -21,12 +22,12 @@ export const portfolioData = {
       company: 'Prodesx Info Tech',
       date: 'March 2026 – Present',
       location: 'Coimbatore, Tamil Nadu',
-      description: [
-        'Designed and implemented responsive frontend user interfaces using React and modern component libraries.',
-        'Developed scalable RESTful APIs with Python FastAPI and integrated them with SQL/NoSQL databases.',
-        'Collaborated on backend database architecture, optimization, and automation workflows.',
-        'Participated in code reviews, testing, and continuous integration pipelines for high-availability systems.'
-      ],
+     description: [
+  'Developing an enterprise HRM platform using React.js, Flutter, ASP.NET Core, and SQL Server.',
+  'Building Employee, Attendance, Leave, Payroll, and Role-Based Access modules.',
+  'Creating responsive web and mobile interfaces with React.js and Flutter.',
+  'Contributing to API development, database design, testing, and product release activities.'
+]
     },
     {
       role: 'Fullstack Developer',
@@ -34,15 +35,11 @@ export const portfolioData = {
       date: 'June 2025 – March 2026',
       location: 'Coimbatore, Tamil Nadu',
       description: [
-        'Developed backend APIs using Python FastAPI and Flask for web and desktop applications.',
-        'Implemented authentication, CRUD operations, and database integration using SQL and MongoDB.',
-        'Worked on automating data extraction, database updates, and ETL tasks using Python.',
-        'Built automation pipelines that extract information from emails, classify data using AI, and generate automated responses.',
-        'Contributed to systems involving speech-to-text processing, accessibility analysis, and backend-driven data workflows.',
-        'Implemented intelligent ETL workflows that ingest large CSV/TSV files, apply AI-driven classification and SQL-based transformations.',
-        'Performed requirement analysis and unit and functional testing.',
-        'Conducted testing of Python systems, debugging issues, and supporting deployments.',
-      ],
+  'Developed scalable backend applications using Python FastAPI, Flask, SQL, and MongoDB.',
+  'Designed API integrations, authentication systems, and automated data processing workflows.',
+  'Built AI-driven solutions for email automation, data classification, and ETL processing.',
+  'Performed testing, debugging, deployment support, and requirement analysis across multiple projects.'
+]
     },
   ],
   // projects: [
@@ -170,10 +167,10 @@ export const portfolioData = {
       github: 'https://github.com/vasanthvk77/sales-enquiry-automation',
     },
 {
-      title: 'ADA Checker Web Application',
+      title: 'ADA Checker',
       category: 'Web Accessibility',
       subtitle: 'Audit & Compliance Tool',
-      company: 'Prodesx Tech',
+      company: 'Cygnus Softwares',
       tech: ['React', 'Python FastAPI', 'JavaScript'],
       description: 'Worked on an ADA Checker web application that scans websites for ADA and WCAG accessibility violations. Built a FastAPI backend to audit URLs and generate detailed, actionable accessibility reports.',
       image: '/portfolio/images/ada_checker.png',

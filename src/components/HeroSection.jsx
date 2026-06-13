@@ -7,19 +7,23 @@ import ThreeSphere from './ThreeSphere';
 const pdfDownload = async () => {
   try {
     const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
-    const filePath = `${basePath}/files/VASANTHAKUMAR_B.pdf`;
+    const filePath = `${basePath}/files/Vasanthakumar_CV.pdf?v=2`;
     const response = await fetch(filePath);
     if (!response.ok) throw new Error('not found');
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'VASANTHAKUMAR_B.pdf'; a.click();
+    a.href = url; a.download = 'Vasanthakumar_CV.pdf'; a.click();
     setTimeout(() => { window.URL.revokeObjectURL(url); }, 100);
   } catch {
     const basePath = window.location.pathname.includes('/portfolio') ? '/portfolio' : '';
     const a = document.createElement('a');
-    a.href = `${basePath}/files/VASANTHAKUMAR_B.pdf`;
-    a.download = 'VASANTHAKUMAR_B.pdf'; a.target = '_blank'; a.click();
+    a.href = `${basePath}/files/Vasanthakumar_CV.pdf?v=2`;
+    a.download = 'Vasanthakumar_CV.pdf';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 };
 
@@ -226,7 +230,7 @@ export default function HeroSection({ personalInfo }) {
           pt: { xs: 2, md: 0 },
           flexShrink: 0,
         }}>
-          {[['1+', 'Yrs Exp'], ['5+', 'Projects'], ['10+', 'Tech']].map(([val, label]) => (
+          {[['1+', 'Yrs Exp'], ['5+', 'Projects'], ['15+', 'Tech']].map(([val, label]) => (
             <Box key={label} sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 800, lineHeight: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>{val}</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontSize: { xs: '0.65rem', md: '0.7rem' } }}>{label}</Typography>

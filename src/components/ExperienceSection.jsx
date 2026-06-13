@@ -97,7 +97,7 @@ function ExperienceItem({ job, idx, isActive, innerRef }) {
           {job.description.map((point, i) => (
             <Box component="li" key={i} sx={{ display: 'flex', gap: 1, mb: 1, alignItems: 'flex-start' }}>
               <ChevronRight size={14} color="#8b5cf6" style={{ marginTop: '4px', flexShrink: 0, opacity: isActive ? 0.8 : 0.2, transition: 'opacity 0.5s' }} />
-              <Typography variant="body2" sx={{ color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)', lineHeight: 1.7, fontSize: '0.9rem', transition: 'color 0.5s' }}>
+              <Typography variant="body2" sx={{ color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)', lineHeight: 1.7, fontSize: '0.9rem', transition: 'color 0.5s',textAlign:"justify" }}>
                 {point}
               </Typography>
             </Box>

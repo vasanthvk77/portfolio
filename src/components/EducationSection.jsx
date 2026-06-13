@@ -54,7 +54,7 @@ export default function EducationSection({ education }) {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         {education.map((edu, idx) => (
           <AnimCard key={idx} delay={idx * 100}>
-            <CardContent sx={{ p: 4 }}>
+            <CardContent sx={{ p: { xs: 2.5, md: 4 } }}>
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' } }}>
                 <Box sx={{
                   width: 52, height: 52, borderRadius: '14px', flexShrink: 0,

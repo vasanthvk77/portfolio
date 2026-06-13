@@ -96,7 +96,6 @@ export default function SkillsSection({ skills }) {
   const categories = Object.entries(skills);
 
   useEffect(() => {
-    if (isMobile) return;
 
     const handleScroll = () => {
       if (!containerRef.current || !maskPathRef.current) return;
@@ -159,8 +158,8 @@ export default function SkillsSection({ skills }) {
         <SectionLabel text="Technical Skills" />
       </Box>
 
-      {/* SVG Dotted Curved Connection Line (Desktop Only) */}
-      {!isMobile && (
+      {/* SVG Dotted Curved Connection Line */}
+      {(
         <svg
           style={{
             position: 'absolute',
@@ -269,7 +268,7 @@ export default function SkillsSection({ skills }) {
                     background: 'linear-gradient(90deg, #8b5cf6, #06b6d4)',
                   }} />
 
-                  <CardContent sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <CardContent sx={{ p: { xs: 2.5, md: 4 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <Typography
                       variant="subtitle1"
                       sx={{

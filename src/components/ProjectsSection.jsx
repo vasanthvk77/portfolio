@@ -44,16 +44,30 @@ function ProjectCard({ project, cardWidth, onCardClick }) {
         display: 'flex',
         flexDirection: 'column',
         p: 2,
+        pt: 2.5,
         boxShadow: 'none',
         cursor: 'pointer',
+        position: 'relative',
+        overflow: 'hidden',
         '&:hover': {
-          border: '1px solid rgba(139,92,246,0.3)',
+          border: '1px solid rgba(139,92,246,0.35)',
           background: 'rgba(255, 255, 255, 0.04)',
-          transform: 'translateY(-4px)',
-          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.3)',
+          transform: 'translateY(-6px)',
+          boxShadow: '0 12px 30px rgba(139, 92, 246, 0.15)',
         },
       }}
     >
+      {/* Top accent gradient border design */}
+      <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 3.5,
+        background: 'linear-gradient(90deg, #8b5cf6, #06b6d4 10%, transparent)',
+        opacity: 0.85,
+      }} />
+
       {/* Floating inner image with rounded corners */}
       <Box sx={{ borderRadius: '12px', overflow: 'hidden', height: 170, width: '100%', mb: 2.5 }}>
         <CardMedia
@@ -166,7 +180,7 @@ export default function ProjectsSection({ projects }) {
         </IconButton>
 
         {/* Viewport container */}
-        <Box sx={{ width: '100%', overflow: 'hidden', py: 1, px: { xs: '40px', md: 0 } }}>
+        <Box sx={{ width: '100%', minWidth: 0, overflow: 'hidden', position: 'relative', py: 1, px: { xs: '40px', md: 0 } }}>
           <Box
             sx={{
               display: 'flex',
@@ -249,7 +263,7 @@ export default function ProjectsSection({ projects }) {
               </Typography>
 
               {/* Description */}
-              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.8, mb: 4, fontSize: '0.95rem' }}>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.8, mb: 4, fontSize: '0.95rem',textAlign:'justify' }}>
                 {activeProject.description}
               </Typography>
 
@@ -273,7 +287,7 @@ export default function ProjectsSection({ projects }) {
 
             <DialogActions sx={{ px: 3, pb: 2.5, justifyContent: 'flex-end', gap: 1.5 }}>
               {/* GitHub Link Button (Gradient without Pink) */}
-              <Button
+              {/* <Button
                 variant="contained"
                 href={activeProject.github}
                 target="_blank"
@@ -293,7 +307,7 @@ export default function ProjectsSection({ projects }) {
                 }}
               >
                 View on GitHub
-              </Button>
+              </Button> */}
             </DialogActions>
           </>
         )}

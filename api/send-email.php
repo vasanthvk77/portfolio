@@ -432,7 +432,7 @@ $ackHtmlContent = <<<HTML
                     Vasantha Kumar B
                   </div>
                   <div style="font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 400; color: #7A7567; margin-top: 6px; letter-spacing: .04em;">
-                    Full Stack Developer — Coimbatore, Tamil Nadu, IN
+                    Full Stack Developer — Tiruppur, Tamil Nadu, IN
                   </div>
                 </td>
               </tr>

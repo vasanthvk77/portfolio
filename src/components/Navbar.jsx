@@ -7,12 +7,12 @@ import {
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 
 const navLinks = [
-  { label: 'Home',           href: '#home' },
-  { label: 'Skills',         href: '#skills' },
-  { label: 'Experience',     href: '#experience' },
-  { label: 'Projects',       href: '#projects' },
-  { label: 'Certifications', href: '#certifications' },
-  { label: 'Contact',        href: '#contact' },
+  { label: 'Home',                href: '#home' },
+  { label: 'Skills',              href: '#skills' },
+  { label: 'Experience',          href: '#experience' },
+  { label: 'Projects',            href: '#projects' },
+  { label: 'Certifications',      href: '#certifications' },
+  { label: 'Education & Contact', href: '#education' },
 ];
 
 export default function Navbar({ name }) {
@@ -30,12 +30,16 @@ export default function Navbar({ name }) {
 
   // Track active section via IntersectionObserver
   useEffect(() => {
-    const ids = navLinks.map(l => l.href.replace('#', ''));
+    const ids = ['home', 'skills', 'experience', 'projects', 'certifications', 'education', 'contact'];
     const observers = ids.map(id => {
       const el = document.getElementById(id);
       if (!el) return null;
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActive(id); },
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setActive(id === 'contact' ? 'education' : id);
+          }
+        },
         { threshold: 0.4 }
       );
       obs.observe(el);

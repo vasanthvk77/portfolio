@@ -26,16 +26,22 @@ export default function Home() {
       <Box sx={{ background: '#08080f', minHeight: '100vh', position: 'relative' }}>
         {/* Ambient background blobs — clamped so they never cause horizontal scroll */}
         <Box sx={{
-          position: 'fixed', top: '15%', left: 0, width: { xs: 200, md: 400 }, height: { xs: 200, md: 400 },
+          position: 'fixed', top: '15%', 
+          left: { xs: '-80px', md: 0 }, 
+          width: { xs: 200, md: 400 }, height: { xs: 200, md: 400 },
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)',
-          pointerEvents: 'none', zIndex: 0, transform: 'translateX(-40%)',
+          pointerEvents: 'none', zIndex: 0, 
+          transform: { xs: 'none', md: 'translateX(-40%)' },
         }} />
         <Box sx={{
-          position: 'fixed', bottom: '20%', right: 0, width: { xs: 200, md: 500 }, height: { xs: 200, md: 500 },
+          position: 'fixed', bottom: '20%', 
+          right: { xs: '-80px', md: 0 }, 
+          width: { xs: 200, md: 500 }, height: { xs: 200, md: 500 },
           borderRadius: '50%',
           background: 'radial-gradient(circle, rgba(6,182,212,0.05) 0%, transparent 70%)',
-          pointerEvents: 'none', zIndex: 0, transform: 'translateX(40%)',
+          pointerEvents: 'none', zIndex: 0, 
+          transform: { xs: 'none', md: 'translateX(40%)' },
         }} />
 
         <Box sx={{ position: 'relative', zIndex: 1 }}>
@@ -65,7 +71,7 @@ export default function Home() {
             display: 'flex', justifyContent: 'center', alignItems: 'center',
           }}>
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
-              Developed & Built by {personalInfo.name}
+              Built with React & MUI
             </Typography>
           </Box>
         </Box>
