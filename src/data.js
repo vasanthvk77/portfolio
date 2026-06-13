@@ -4,7 +4,7 @@ export const portfolioData = {
     title: 'Fullstack Developer',
     email: 'vasanth2004vk@gmail.com',
     phone: '9514203043',
-    linkedin: 'https://linkedin.com/in/vasantha-kumar-b',
+    linkedin: 'https://www.linkedin.com/in/vasanthakumar-b-6a9102293/',
     github: 'https://github.com/vasanthvk77',
     profileSummary: `Fullstack Developer with experience building end-to-end digital products — scalable backends, RESTful APIs, responsive web apps, and cross-platform mobile applications. Currently working at Prodesx Info Tech, previously at Cygnus Software, delivering real-world solutions across AI automation, ETL workflows, and system integration.
 My stack includes Python, FastAPI, Flask, and .NET on the backend, React for web, Flutter for mobile, and SQL & MongoDB for data — with a consistent focus on clean, production-ready code across the full lifecycle.`,
