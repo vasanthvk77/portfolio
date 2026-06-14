@@ -11,7 +11,7 @@ My stack includes Python, FastAPI, Flask, and .NET on the backend, React for web
   },
   skills: {
     'Programming & Backend': ['Python', 'Flask', 'FastAPI', '.NET', 'MySQL', 'PostgreSQL', 'SQL Server', 'MongoDB'],
-    'Core Concepts': ['Data Structures', 'OOPS', 'REST API Development', 'ETL', 'AI Automation'],
+    'Core Concepts': ['Data Structures', 'OOP', 'REST API Development', 'ETL', 'AI Automation'],
     'Frontend Exposure': ['HTML', 'CSS', 'Bootstrap', 'React', 'Flutter', 'Three.js'],
     'Tools & Platforms': ['Git', 'Railway', 'VS Code', 'Cursor', 'Antigravity', 'Vercel'],
     'Additional Skills': ['JSON', 'Agile Methodologies', 'Video Editing (DaVinci Resolve)', 'Photo Editing (Canva)'],
