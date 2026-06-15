@@ -230,7 +230,7 @@ export default function HeroSection({ personalInfo }) {
           pt: { xs: 2, md: 0 },
           flexShrink: 0,
         }}>
-          {[['1+', 'Yrs Exp'], ['5+', 'Projects'], ['15+', 'Tech']].map(([val, label]) => (
+          {[['1+', 'Yrs Exp'], ['8+', 'Projects'], ['15+', 'Tech']].map(([val, label]) => (
             <Box key={label} sx={{ textAlign: 'center' }}>
               <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 800, lineHeight: 1, fontSize: { xs: '1rem', md: '1.25rem' } }}>{val}</Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.4)', fontSize: { xs: '0.65rem', md: '0.7rem' } }}>{label}</Typography>
