@@ -10,202 +10,224 @@ header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header("HTTP/1.1 200 OK");
-    exit();
+  header("HTTP/1.1 200 OK");
+  exit();
 }
 
 // Automatically load local .env file if it exists (for local testing)
 $envFile = dirname(__DIR__) . '/.env';
 if (file_exists($envFile)) {
-    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue;
-        if (strpos($line, '=') !== false) {
-            list($nameVar, $valueVar) = explode('=', $line, 2);
-            $nameVar = trim($nameVar);
-            $valueVar = trim(preg_replace('/^"|"$|^\'|\'$/', '', trim($valueVar))); // Strip quotes
-            if (!getenv($nameVar)) {
-                putenv("{$nameVar}={$valueVar}");
-                $_ENV[$nameVar] = $valueVar;
-                $_SERVER[$nameVar] = $valueVar;
-            }
-        }
+  $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+  foreach ($lines as $line) {
+    if (strpos(trim($line), '#') === 0)
+      continue;
+    if (strpos($line, '=') !== false) {
+      list($nameVar, $valueVar) = explode('=', $line, 2);
+      $nameVar = trim($nameVar);
+      $valueVar = trim(preg_replace('/^"|"$|^\'|\'$/', '', trim($valueVar))); // Strip quotes
+      if (!getenv($nameVar)) {
+        putenv("{$nameVar}={$valueVar}");
+        $_ENV[$nameVar] = $valueVar;
+        $_SERVER[$nameVar] = $valueVar;
+      }
     }
+  }
 }
 
 /**
  * Enhanced SMTP Mailer Class
  * Handles authenticated SMTP without external dependencies
  */
-class SimpleSMTP {
-    private $host;
-    private $port;
-    private $user;
-    private $pass;
-    private $lastError = "";
+class SimpleSMTP
+{
+  private $host;
+  private $port;
+  private $user;
+  private $pass;
+  private $lastError = "";
 
-    public function __construct($host, $port, $user, $pass) {
-        $this->host = $host;
-        $this->port = (int)$port;
-        $this->user = $user;
-        $this->pass = $pass;
+  public function __construct($host, $port, $user, $pass)
+  {
+    $this->host = $host;
+    $this->port = (int) $port;
+    $this->user = $user;
+    $this->pass = $pass;
+  }
+
+  public function getLastError()
+  {
+    return $this->lastError;
+  }
+
+  public function send($toAddresses, $subject, $htmlContent, $plainTextContent, $fromName, $replyTo = "", $isAutoResponse = false)
+  {
+    $timeout = 10;
+    $boundary = "----=_Part_" . md5(time());
+
+    // SSL context - disabling peer verification for local dev compatibility
+    $context = stream_context_create([
+      'ssl' => [
+        'verify_peer' => false,
+        'verify_peer_name' => false,
+        'allow_self_signed' => true,
+      ]
+    ]);
+
+    if ($this->port == 465) {
+      $socket = @stream_socket_client("ssl://{$this->host}:{$this->port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
+    } else {
+      $socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
     }
 
-    public function getLastError() {
-        return $this->lastError;
+    if (!$socket) {
+      $this->lastError = "SMTP Connection Error: $errstr ($errno)";
+      return false;
     }
 
-    public function send($toAddresses, $subject, $htmlContent, $plainTextContent, $fromName, $replyTo = "", $isAutoResponse = false) {
-        $timeout = 10;
-        $boundary = "----=_Part_" . md5(time());
+    if (!$this->expect($socket, "220"))
+      return false;
+    if (!$this->sendCommand($socket, "EHLO " . $this->host, "250"))
+      return false;
 
-        // SSL context - disabling peer verification for local dev compatibility
-        $context = stream_context_create([
-            'ssl' => [
-                'verify_peer'       => false,
-                'verify_peer_name'  => false,
-                'allow_self_signed' => true,
-            ]
-        ]);
-
-        if ($this->port == 465) {
-            $socket = @stream_socket_client("ssl://{$this->host}:{$this->port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
-        } else {
-            $socket = @stream_socket_client("tcp://{$this->host}:{$this->port}", $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT, $context);
-        }
-
-        if (!$socket) {
-            $this->lastError = "SMTP Connection Error: $errstr ($errno)";
-            return false;
-        }
-
-        if (!$this->expect($socket, "220")) return false;
-        if (!$this->sendCommand($socket, "EHLO " . $this->host, "250")) return false;
-
-        if ($this->port == 587) {
-            if (!$this->sendCommand($socket, "STARTTLS", "220")) return false;
-            if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
-                $error = error_get_last();
-                $this->lastError = "TLS Encryption failed. " . ($error ? $error['message'] : '');
-                return false;
-            }
-            if (!$this->sendCommand($socket, "EHLO " . $this->host, "250")) return false;
-        }
-
-        if (!$this->sendCommand($socket, "AUTH LOGIN", "334")) return false;
-        if (!$this->sendCommand($socket, base64_encode($this->user), "334")) return false;
-        if (!$this->sendCommand($socket, base64_encode($this->pass), "235")) {
-            $this->lastError = "Authentication failed";
-            return false;
-        }
-
-        if (!$this->sendCommand($socket, "MAIL FROM: <{$this->user}>", "250")) return false;
-        
-        foreach ((array)$toAddresses as $to) {
-            if (!$this->sendCommand($socket, "RCPT TO: <{$to}>", "250")) return false;
-        }
-
-        if (!$this->sendCommand($socket, "DATA", "354")) return false;
-
-        // Extract domain from sender address for Message-ID header
-        $domain = substr(strrchr($this->user, "@"), 1) ?: "localhost";
-        $messageId = "<" . time() . '.' . uniqid('smtp', true) . '@' . $domain . ">";
-
-        $headers = "MIME-Version: 1.0\r\n";
-        $headers .= "To: " . (is_array($toAddresses) ? implode(', ', $toAddresses) : $toAddresses) . "\r\n";
-        $headers .= "From: $fromName <{$this->user}>\r\n";
-        if (!empty($replyTo)) {
-            $headers .= "Reply-To: <$replyTo>\r\n";
-        }
-        $headers .= "Message-ID: $messageId\r\n";
-        $headers .= "Subject: $subject\r\n";
-        $headers .= "Date: " . date('r') . "\r\n";
-        $headers .= "X-Mailer: SimpleSMTP\r\n";
-        if ($isAutoResponse) {
-            $headers .= "Auto-Submitted: auto-replied\r\n";
-        }
-        $headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
-
-        $body = "--$boundary\r\n";
-        $body .= "Content-Type: text/plain; charset=utf-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $plainTextContent . "\r\n\r\n";
-        $body .= "--$boundary\r\n";
-        $body .= "Content-Type: text/html; charset=utf-8\r\n";
-        $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
-        $body .= $htmlContent . "\r\n\r\n";
-        $body .= "--$boundary--";
-
-        fputs($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
-        if (!$this->expect($socket, "250")) return false;
-
-        $this->sendCommand($socket, "QUIT", "221");
-        fclose($socket);
-        return true;
+    if ($this->port == 587) {
+      if (!$this->sendCommand($socket, "STARTTLS", "220"))
+        return false;
+      if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+        $error = error_get_last();
+        $this->lastError = "TLS Encryption failed. " . ($error ? $error['message'] : '');
+        return false;
+      }
+      if (!$this->sendCommand($socket, "EHLO " . $this->host, "250"))
+        return false;
     }
 
-    private function sendCommand($socket, $cmd, $expected) {
-        fputs($socket, $cmd . "\r\n");
-        return $this->expect($socket, $expected);
+    if (!$this->sendCommand($socket, "AUTH LOGIN", "334"))
+      return false;
+    if (!$this->sendCommand($socket, base64_encode($this->user), "334"))
+      return false;
+    if (!$this->sendCommand($socket, base64_encode($this->pass), "235")) {
+      $this->lastError = "Authentication failed";
+      return false;
     }
 
-    private function expect($socket, $code) {
-        $response = "";
-        while ($line = @fgets($socket, 515)) {
-            $response .= $line;
-            if (isset($line[3]) && $line[3] == " ") break;
-        }
-        if (substr($response, 0, 3) !== $code) {
-            $this->lastError = "Expected $code but received: " . $response;
-            return false;
-        }
-        return true;
+    if (!$this->sendCommand($socket, "MAIL FROM: <{$this->user}>", "250"))
+      return false;
+
+    foreach ((array) $toAddresses as $to) {
+      if (!$this->sendCommand($socket, "RCPT TO: <{$to}>", "250"))
+        return false;
     }
+
+    if (!$this->sendCommand($socket, "DATA", "354"))
+      return false;
+
+    // Extract domain from sender address for Message-ID header
+    $domain = substr(strrchr($this->user, "@"), 1) ?: "localhost";
+    $messageId = "<" . time() . '.' . uniqid('smtp', true) . '@' . $domain . ">";
+
+    $headers = "MIME-Version: 1.0\r\n";
+    $headers .= "To: " . (is_array($toAddresses) ? implode(', ', $toAddresses) : $toAddresses) . "\r\n";
+    $headers .= "From: $fromName <{$this->user}>\r\n";
+    if (!empty($replyTo)) {
+      $headers .= "Reply-To: <$replyTo>\r\n";
+    }
+    $headers .= "Message-ID: $messageId\r\n";
+    $headers .= "Subject: $subject\r\n";
+    $headers .= "Date: " . date('r') . "\r\n";
+    $headers .= "X-Mailer: SimpleSMTP\r\n";
+    if ($isAutoResponse) {
+      $headers .= "Auto-Submitted: auto-replied\r\n";
+    }
+    $headers .= "Content-Type: multipart/alternative; boundary=\"$boundary\"\r\n";
+
+    $body = "--$boundary\r\n";
+    $body .= "Content-Type: text/plain; charset=utf-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $plainTextContent . "\r\n\r\n";
+    $body .= "--$boundary\r\n";
+    $body .= "Content-Type: text/html; charset=utf-8\r\n";
+    $body .= "Content-Transfer-Encoding: 8bit\r\n\r\n";
+    $body .= $htmlContent . "\r\n\r\n";
+    $body .= "--$boundary--";
+
+    fputs($socket, $headers . "\r\n" . $body . "\r\n.\r\n");
+    if (!$this->expect($socket, "250"))
+      return false;
+
+    $this->sendCommand($socket, "QUIT", "221");
+    fclose($socket);
+    return true;
+  }
+
+  private function sendCommand($socket, $cmd, $expected)
+  {
+    fputs($socket, $cmd . "\r\n");
+    return $this->expect($socket, $expected);
+  }
+
+  private function expect($socket, $code)
+  {
+    $response = "";
+    while ($line = @fgets($socket, 515)) {
+      $response .= $line;
+      if (isset($line[3]) && $line[3] == " ")
+        break;
+    }
+    if (substr($response, 0, 3) !== $code) {
+      $this->lastError = "Expected $code but received: " . $response;
+      return false;
+    }
+    return true;
+  }
 }
 
 // -------------------------------------------------------------------
 // EMAIL CONFIGURATION — loaded directly from environment variables
 // -------------------------------------------------------------------
 $emailConfig = [
-    'host'     => getenv('SMTP_HOST') ?: 'smtp.gmail.com',
-    'port'     => (int)(getenv('SMTP_PORT') ?: 587),
-    'username' => getenv('SMTP_USER') ?: 'vasanth2004vk@gmail.com',
-    'password' => getenv('SMTP_PASSWORD') ?: '',
-    'fromName' => getenv('SMTP_FROM_NAME') ?: 'Portfolio Contact Form',
+  'host' => getenv('VITE_SMTP_HOST') ?: 'smtp.gmail.com',
+  'port' => (int) (getenv('VITE_SMTP_PORT') ?: 587),
+  'username' => getenv('VITE_SMTP_USER') ?: 'vasanth2004vk@gmail.com',
+  'password' => getenv('VITE_SMTP_PASSWORD') ?: '',
+  'fromName' => getenv('VITE_SMTP_FROM_NAME') ?: 'Portfolio Contact Form',
 ];
-$toEmails = getenv('CONTACT_RECIPIENT_EMAIL') ?: 'vasanthakumar4059@gmail.com';
+$toEmails = getenv('VITE_CONTACT_RECIPIENT_EMAIL') ?: 'vasanthakumar4059@gmail.com';
 // -------------------------------------------------------------------
 
 // Retrieve POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
 if (!$data) {
-    echo json_encode(["status" => "error", "message" => "No data provided."]);
-    exit();
+  echo json_encode(["status" => "error", "message" => "No data provided."]);
+  exit();
 }
 
-$name    = isset($data['name'])    ? trim($data['name'])    : '';
-$email   = isset($data['email'])   ? trim($data['email'])   : '';
-$phone   = isset($data['phone'])   ? trim($data['phone'])   : '';
+$name = isset($data['name']) ? trim($data['name']) : '';
+$email = isset($data['email']) ? trim($data['email']) : '';
+$phone = isset($data['phone']) ? trim($data['phone']) : '';
 $message = isset($data['message']) ? trim($data['message']) : '';
 
 // --- Server-side validation ---
 $validationErrors = [];
-if (empty($name))                           $validationErrors[] = "Name is required.";
-if (empty($email))                          $validationErrors[] = "Email is required.";
-elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $validationErrors[] = "Invalid email address.";
-if (empty($message))                        $validationErrors[] = "Message is required.";
+if (empty($name))
+  $validationErrors[] = "Name is required.";
+if (empty($email))
+  $validationErrors[] = "Email is required.";
+elseif (!filter_var($email, FILTER_VALIDATE_EMAIL))
+  $validationErrors[] = "Invalid email address.";
+if (empty($message))
+  $validationErrors[] = "Message is required.";
 
 if (!empty($validationErrors)) {
-    http_response_code(400);
-    echo json_encode(["status" => "error", "message" => implode(" ", $validationErrors)]);
-    exit();
+  http_response_code(400);
+  echo json_encode(["status" => "error", "message" => implode(" ", $validationErrors)]);
+  exit();
 }
 
 // Sanitize after validation
-$name    = htmlspecialchars($name);
-$email   = htmlspecialchars($email);
-$phone   = htmlspecialchars($phone);
+$name = htmlspecialchars($name);
+$email = htmlspecialchars($email);
+$phone = htmlspecialchars($phone);
 $messageRaw = $message; // Keep raw for text version
 $message = htmlspecialchars($message);
 
@@ -524,7 +546,7 @@ flush();
 
 // For servers using FastCGI (like many production hosts)
 if (function_exists('fastcgi_finish_request')) {
-    fastcgi_finish_request();
+  fastcgi_finish_request();
 }
 
 // -------------------------------------------------------------------
@@ -535,17 +557,17 @@ $result = $mailer->send($toEmails, "New Contact Us Form Submission from $name", 
 $logFile = __DIR__ . '/mailer_log.txt';
 $timestamp = date('Y-m-d H:i:s');
 if ($result) {
-    file_put_contents($logFile, "[$timestamp] Success: Mail sent successfully to " . $toEmails . "\n", FILE_APPEND);
-    
-    // Send auto-acknowledgement email to the sender
-    $ackResult = $mailer->send($email, "Message Received", $ackHtmlContent, $ackPlainTextContent, "Vasantha Kumar B", "", true);
-    if ($ackResult) {
-        file_put_contents($logFile, "[$timestamp] Success: Auto-ACK sent to " . $email . "\n", FILE_APPEND);
-    } else {
-        file_put_contents($logFile, "[$timestamp] Error: Auto-ACK failed to send to " . $email . ". Error: " . $mailer->getLastError() . "\n", FILE_APPEND);
-    }
+  file_put_contents($logFile, "[$timestamp] Success: Mail sent successfully to " . $toEmails . "\n", FILE_APPEND);
+
+  // Send auto-acknowledgement email to the sender
+  $ackResult = $mailer->send($email, "Message Received", $ackHtmlContent, $ackPlainTextContent, "Vasantha Kumar B", "", true);
+  if ($ackResult) {
+    file_put_contents($logFile, "[$timestamp] Success: Auto-ACK sent to " . $email . "\n", FILE_APPEND);
+  } else {
+    file_put_contents($logFile, "[$timestamp] Error: Auto-ACK failed to send to " . $email . ". Error: " . $mailer->getLastError() . "\n", FILE_APPEND);
+  }
 } else {
-    file_put_contents($logFile, "[$timestamp] Error: Mail failed to send. Error: " . $mailer->getLastError() . "\n", FILE_APPEND);
+  file_put_contents($logFile, "[$timestamp] Error: Mail failed to send. Error: " . $mailer->getLastError() . "\n", FILE_APPEND);
 }
 
 exit();
