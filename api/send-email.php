@@ -42,7 +42,68 @@ $recipientEmail = getenv('VITE_CONTACT_RECIPIENT_EMAIL') ?: 'vasanthakumar4059@g
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
-// STEP 1: Get a fresh Access Token using the Refresh Token (No cURL needed)
+// Helper function to make HTTP POST requests, using cURL if available for performance & connection reuse on Vercel, falling back to file_get_contents
+function makePostRequest($url, $headers, $postData) {
+    if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        return [
+            'success'  => ($httpCode >= 200 && $httpCode < 300),
+            'httpCode' => $httpCode,
+            'response' => $response,
+            'error'    => $error
+        ];
+    } else {
+        $headerString = implode("\r\n", $headers) . "\r\n";
+        $opts = [
+            'http' => [
+                'method'        => 'POST',
+                'header'        => $headerString,
+                'content'       => $postData,
+                'timeout'       => 15,
+                'ignore_errors' => true
+            ],
+            'ssl' => [
+                'verify_peer'       => false,
+                'verify_peer_name'  => false,
+                'allow_self_signed' => true,
+            ]
+        ];
+        $context = stream_context_create($opts);
+        $response = @file_get_contents($url, false, $context);
+        
+        $httpCode = 500;
+        $hdrVar = 'http_response_header';
+        $resHeaders = function_exists('http_get_last_response_headers') ? http_get_last_response_headers() : (isset($$hdrVar) ? $$hdrVar : null);
+        if (isset($resHeaders) && isset($resHeaders[0])) {
+            preg_match('{HTTP\/\S*\s(\d{3})}', $resHeaders[0], $match);
+            $httpCode = isset($match[1]) ? (int)$match[1] : 500;
+        }
+        
+        return [
+            'success'  => ($httpCode >= 200 && $httpCode < 300),
+            'httpCode' => $httpCode,
+            'response' => $response,
+            'error'    => $response === false ? 'Connection failed' : '',
+        ];
+    }
+}
+
+// -------------------------------------------------------------------
+// STEP 1: Get a fresh Access Token using the Refresh Token
 // -------------------------------------------------------------------
 function getGmailAccessToken($clientId, $clientSecret, $refreshToken) {
     $postData = http_build_query([
@@ -52,34 +113,22 @@ function getGmailAccessToken($clientId, $clientSecret, $refreshToken) {
         'grant_type'    => 'refresh_token',
     ]);
     
-    $opts = [
-        'http' => [
-            'method'  => 'POST',
-            'header'  => "Content-Type: application/x-www-form-urlencoded\r\n" .
-                         "Content-Length: " . strlen($postData) . "\r\n",
-            'content' => $postData,
-            'timeout' => 15
-        ],
-        'ssl' => [
-            'verify_peer'       => false,
-            'verify_peer_name'  => false,
-            'allow_self_signed' => true,
-        ]
+    $headers = [
+        "Content-Type: application/x-www-form-urlencoded",
+        "Content-Length: " . strlen($postData)
     ];
     
-    $context = stream_context_create($opts);
-    $response = @file_get_contents('https://oauth2.googleapis.com/token', false, $context);
-    
-    if ($response === false) {
+    $result = makePostRequest('https://oauth2.googleapis.com/token', $headers, $postData);
+    if (!$result['success'] || empty($result['response'])) {
         return null;
     }
     
-    $data = json_decode($response, true);
+    $data = json_decode($result['response'], true);
     return $data['access_token'] ?? null;
 }
 
 // -------------------------------------------------------------------
-// STEP 2: Send email via Gmail REST API (No cURL needed)
+// STEP 2: Send email via Gmail REST API
 // -------------------------------------------------------------------
 function sendViaGmailAPI($accessToken, $fromName, $fromEmail, $toEmail, $subject, $htmlBody, $replyTo = '') {
     // Build raw MIME message with base64 encoded HTML body
@@ -99,41 +148,13 @@ function sendViaGmailAPI($accessToken, $fromName, $fromEmail, $toEmail, $subject
     $encoded = rtrim(strtr(base64_encode($mime), '+/', '-_'), '=');
     $payload = json_encode(['raw' => $encoded]);
 
-    $opts = [
-        'http' => [
-            'method'        => 'POST',
-            'header'        => "Authorization: Bearer {$accessToken}\r\n" .
-                               "Content-Type: application/json\r\n" .
-                               "Content-Length: " . strlen($payload) . "\r\n",
-            'content'       => $payload,
-            'timeout'       => 15,
-            'ignore_errors' => true // allows reading response body on non-200 HTTP codes
-        ],
-        'ssl' => [
-            'verify_peer'       => false,
-            'verify_peer_name'  => false,
-            'allow_self_signed' => true,
-        ]
+    $headers = [
+        "Authorization: Bearer {$accessToken}",
+        "Content-Type: application/json",
+        "Content-Length: " . strlen($payload)
     ];
     
-    $context  = stream_context_create($opts);
-    $response = @file_get_contents('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', false, $context);
-    
-    // Extract HTTP Response Code
-    $httpCode = 500;
-    $hdrVar = 'http_response_header';
-    $headers = function_exists('http_get_last_response_headers') ? http_get_last_response_headers() : (isset($$hdrVar) ? $$hdrVar : null);
-    if (isset($headers) && isset($headers[0])) {
-        preg_match('{HTTP\/\S*\s(\d{3})}', $headers[0], $match);
-        $httpCode = isset($match[1]) ? (int)$match[1] : 500;
-    }
-    
-    return [
-        'success'  => ($httpCode >= 200 && $httpCode < 300),
-        'httpCode' => $httpCode,
-        'response' => $response,
-        'error'    => $response === false ? 'Connection failed' : '',
-    ];
+    return makePostRequest('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', $headers, $payload);
 }
 
 // -------------------------------------------------------------------
@@ -257,14 +278,23 @@ $ackHtml = "
 ";
 
 // -------------------------------------------------------------------
-// GET ACCESS TOKEN
+// GET ACCESS TOKEN & LOGGING SETUP
 // -------------------------------------------------------------------
-$accessToken = getGmailAccessToken($clientId, $clientSecret, $refreshToken);
+$isDev       = 0; // 1 = local development (writes logs), 0 = Vercel production (no logging)
 $logFile     = __DIR__ . '/mailer_log.txt';
 $timestamp   = date('Y-m-d H:i:s');
 
+function writeToLog($message) {
+    global $isDev, $logFile;
+    if ($isDev) {
+        @file_put_contents($logFile, $message, FILE_APPEND);
+    }
+}
+
+$accessToken = getGmailAccessToken($clientId, $clientSecret, $refreshToken);
+
 if (!$accessToken) {
-    file_put_contents($logFile, "[{$timestamp}] ERROR: Failed to obtain Gmail access token.\n", FILE_APPEND);
+    writeToLog("[{$timestamp}] ERROR: Failed to obtain Gmail access token.\n");
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Authentication error. Please try again later."]);
     exit();
@@ -284,7 +314,7 @@ $result = sendViaGmailAPI(
 );
 
 if ($result['success']) {
-    file_put_contents($logFile, "[{$timestamp}] SUCCESS: Notification sent to {$recipientEmail}\n", FILE_APPEND);
+    writeToLog("[{$timestamp}] SUCCESS: Notification sent to {$recipientEmail}\n");
 
     // SEND AUTO-REPLY → to visitor
     $ackResult = sendViaGmailAPI(
@@ -297,14 +327,14 @@ if ($result['success']) {
     );
 
     if ($ackResult['success']) {
-        file_put_contents($logFile, "[{$timestamp}] SUCCESS: Auto-ACK sent to {$email}\n", FILE_APPEND);
+        writeToLog("[{$timestamp}] SUCCESS: Auto-ACK sent to {$email}\n");
     } else {
-        file_put_contents($logFile, "[{$timestamp}] WARNING: Auto-ACK failed. HTTP:{$ackResult['httpCode']} Err:{$ackResult['error']}\n", FILE_APPEND);
+        writeToLog("[{$timestamp}] WARNING: Auto-ACK failed. HTTP:{$ackResult['httpCode']} Err:{$ackResult['error']}\n");
     }
 
     echo json_encode(["status" => "success", "message" => "Message received. We will get back to you soon!"]);
 } else {
-    file_put_contents($logFile, "[{$timestamp}] ERROR: Notification failed. HTTP:{$result['httpCode']} Res:{$result['response']} Err:{$result['error']}\n", FILE_APPEND);
+    writeToLog("[{$timestamp}] ERROR: Notification failed. HTTP:{$result['httpCode']} Res:{$result['response']} Err:{$result['error']}\n");
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Failed to send message. Please try again."]);
 }
